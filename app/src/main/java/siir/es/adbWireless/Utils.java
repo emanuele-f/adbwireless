@@ -76,6 +76,31 @@ public class Utils {
 		builder.show();
 	}
 
+	public static boolean isPortListening(String port) {
+		boolean isOpen = false;
+		port = ":" + port;
+
+		try {
+			Process process;
+			process = Runtime.getRuntime().exec("netstat -tln");
+
+			BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
+			String line;
+			while ((line = in.readLine()) != null) {
+				if(line.contains(port) && line.contains("LISTEN")) {
+					isOpen = true;
+					break;
+				}
+			}
+			in.close();
+			process.waitFor();
+		} catch (IOException | InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		return isOpen;
+	}
+
 	@SuppressWarnings("deprecation")
 	public static boolean adbStart(Context context) {
 		try {

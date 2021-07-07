@@ -124,7 +124,8 @@ public class adbWireless extends Activity {
 	protected void onResume() {
 		super.onResume();
 		SharedPreferences settings = getSharedPreferences("wireless", 0);
-		mState = settings.getBoolean("mState", false);
+		//mState = settings.getBoolean("mState", false);
+		mState = Utils.isPortListening(PORT);
 		wifiState = settings.getBoolean("wifiState", false);
 		updateState();
 	}
