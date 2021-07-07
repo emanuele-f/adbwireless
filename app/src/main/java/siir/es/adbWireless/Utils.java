@@ -39,6 +39,7 @@ import android.net.wifi.WifiManager;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.widget.Toast;
 
 public class Utils {
@@ -81,9 +82,7 @@ public class Utils {
 			if (!adbWireless.USB_DEBUG) {
 				Utils.setProp("service.adb.tcp.port", adbWireless.PORT);
 
-				if(Utils.isProcessRunning("adbd"))
-					Utils.runRootCommand("stop adbd");
-
+				Utils.runRootCommand("stop adbd");
 				Utils.runRootCommand("start adbd");
 			}
 			try {
@@ -176,28 +175,6 @@ public class Utils {
 		} catch (Exception e) {
 		}
 
-	}
-
-	public static boolean isProcessRunning(String processName) {
-		boolean running = false;
-		Process process = null;
-		try {
-			process = Runtime.getRuntime().exec("pgrep adbd");
-
-			BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
-			String line = null;
-			while ((line = in.readLine()) != null) {
-				if (!line.equals("\n")) {
-					running = true;
-					break;
-				}
-			}
-			in.close();
-			process.waitFor();
-		} catch (IOException | InterruptedException e) {
-			e.printStackTrace();
-		}
-		return running;
 	}
 
 	public static boolean hasRootPermission() {
