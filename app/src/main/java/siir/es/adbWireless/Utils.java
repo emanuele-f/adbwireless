@@ -20,6 +20,7 @@ package siir.es.adbWireless;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 
 import android.app.Activity;
@@ -79,12 +80,10 @@ public class Utils {
 		try {
 			if (!adbWireless.USB_DEBUG) {
 				Utils.setProp("service.adb.tcp.port", adbWireless.PORT);
-				try {
-					if (Utils.isProcessRunning("adbd")) {
-						Utils.runRootCommand("stop adbd");
-					}
-				} catch (Exception e) {
-				}
+
+				if(Utils.isProcessRunning("adbd"))
+					Utils.runRootCommand("stop adbd");
+
 				Utils.runRootCommand("start adbd");
 			}
 			try {
@@ -179,20 +178,25 @@ public class Utils {
 
 	}
 
-	public static boolean isProcessRunning(String processName) throws Exception {
+	public static boolean isProcessRunning(String processName) {
 		boolean running = false;
 		Process process = null;
-		process = Runtime.getRuntime().exec("ps");
-		BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
-		String line = null;
-		while ((line = in.readLine()) != null) {
-			if (line.contains(processName)) {
-				running = true;
-				break;
+		try {
+			process = Runtime.getRuntime().exec("pgrep adbd");
+
+			BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
+			String line = null;
+			while ((line = in.readLine()) != null) {
+				if (!line.equals("\n")) {
+					running = true;
+					break;
+				}
 			}
+			in.close();
+			process.waitFor();
+		} catch (IOException | InterruptedException e) {
+			e.printStackTrace();
 		}
-		in.close();
-		process.waitFor();
 		return running;
 	}
 
